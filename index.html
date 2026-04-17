@@ -535,8 +535,7 @@
       }
 
       const size = parseInt(sizeSlider.value);
-      const eclMap = { L: 1, M: 0, Q: 3, H: 2 }; // qrcode-generator uses 1=L, 0=M, 3=Q, 2=H
-      const ecl = eclMap[eclSelect.value];
+      const ecl = eclSelect.value;
       const fg = fgColor.value;
       const bg = bgColor.value;
 
@@ -549,7 +548,7 @@
       } catch (e) {
         // If data is too long for current EC level, try lower
         try {
-          qr = qrcode(0, 1); // Low EC
+          qr = qrcode(0, 'L'); // Low EC
           qr.addData(text);
           qr.make();
         } catch (e2) {
