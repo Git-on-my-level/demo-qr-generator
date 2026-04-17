@@ -3,25 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Fun — QR Code Generator</title>
+  <title>QR Fun</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0a0a0f;
-      --surface: #13131a;
-      --surface2: #1c1c26;
-      --border: #2a2a3a;
-      --text: #e8e8f0;
-      --text-dim: #8888a0;
-      --accent: #6c5ce7;
-      --accent-glow: rgba(108, 92, 231, 0.3);
-      --green: #00cec9;
-      --pink: #fd79a8;
-      --orange: #fdcb6e;
-      --radius: 12px;
+      --bg: #09090f;
+      --surface: #111118;
+      --surface2: #191922;
+      --border: #252535;
+      --text: #e4e4ee;
+      --text-dim: #6e6e88;
+      --accent: #7c6cf0;
+      --accent-glow: rgba(124, 108, 240, 0.2);
+      --pink: #e879a8;
+      --green: #4eeadb;
+      --r: 8px;
     }
 
     body {
@@ -29,625 +28,296 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    /* Animated background */
-    .bg-grid {
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(108, 92, 231, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(108, 92, 231, 0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      z-index: 0;
-    }
-
-    .bg-blob {
-      position: fixed;
-      width: 600px;
-      height: 600px;
-      border-radius: 50%;
-      filter: blur(120px);
-      opacity: 0.15;
-      z-index: 0;
-      animation: blobFloat 20s ease-in-out infinite;
-    }
-    .bg-blob-1 { background: var(--accent); top: -200px; left: -200px; }
-    .bg-blob-2 { background: var(--pink); bottom: -200px; right: -200px; animation-delay: -10s; }
-
-    @keyframes blobFloat {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(30px, -20px) scale(1.05); }
-      66% { transform: translate(-20px, 30px) scale(0.95); }
-    }
-
-    /* Layout */
-    .app {
-      position: relative;
-      z-index: 1;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem 4rem;
-    }
-
-    /* Header */
-    .header {
-      text-align: center;
-      margin-bottom: 2.5rem;
-    }
-
-    .header h1 {
-      font-size: 2.5rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--accent), var(--pink), var(--green));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: -0.02em;
-    }
-
-    .header p {
-      color: var(--text-dim);
-      margin-top: 0.5rem;
-      font-size: 1rem;
-    }
-
-    /* Input section */
-    .input-section {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .input-section label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.75rem;
-    }
-
-    .input-row {
       display: flex;
-      gap: 0.75rem;
-    }
-
-    textarea {
-      flex: 1;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.95rem;
-      padding: 0.85rem 1rem;
-      resize: vertical;
-      min-height: 60px;
-      max-height: 200px;
-      transition: border-color 0.2s;
-      outline: none;
-    }
-
-    textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-glow);
-    }
-
-    textarea::placeholder { color: var(--text-dim); opacity: 0.5; }
-
-    /* Options */
-    .options {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .option-group {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1rem;
-    }
-
-    .option-group label {
-      display: block;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.5rem;
-    }
-
-    .option-group select,
-    .option-group input[type="range"] {
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      font-size: 0.9rem;
-      padding: 0.5rem 0.75rem;
-      outline: none;
-      cursor: pointer;
-    }
-
-    .option-group select:focus {
-      border-color: var(--accent);
-    }
-
-    input[type="range"] {
-      -webkit-appearance: none;
-      height: 6px;
-      border-radius: 3px;
-      background: var(--border);
-      border: none;
-      padding: 0;
-      margin-top: 0.25rem;
-    }
-
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: var(--accent);
-      cursor: pointer;
-      box-shadow: 0 0 8px var(--accent-glow);
-    }
-
-    .range-value {
-      text-align: right;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.8rem;
-      color: var(--accent);
-      margin-top: 0.25rem;
-    }
-
-    /* Color pickers */
-    .color-row {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-top: 0.25rem;
-    }
-
-    .color-swatch {
-      position: relative;
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      border: 2px solid var(--border);
-      overflow: hidden;
-      cursor: pointer;
-    }
-
-    .color-swatch input[type="color"] {
-      position: absolute;
-      inset: -8px;
-      width: calc(100% + 16px);
-      height: calc(100% + 16px);
-      border: none;
-      cursor: pointer;
-    }
-
-    .color-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.8rem;
-      color: var(--text-dim);
-    }
-
-    /* Generate button */
-    .generate-btn {
-      width: 100%;
-      padding: 1rem;
-      background: linear-gradient(135deg, var(--accent), #8b5cf6);
-      color: white;
-      border: none;
-      border-radius: var(--radius);
-      font-family: 'Inter', sans-serif;
-      font-size: 1.05rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-      letter-spacing: 0.02em;
-    }
-
-    .generate-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 24px var(--accent-glow);
-    }
-
-    .generate-btn:active {
-      transform: translateY(0);
-    }
-
-    /* QR Display */
-    .qr-display {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 1.5rem;
-      margin-top: 2rem;
-      animation: fadeInUp 0.4s ease-out;
-    }
-
-    .qr-display.visible { display: flex; }
-
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .qr-frame {
-      background: white;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,0.1),
-        0 20px 60px rgba(0,0,0,0.4);
-      position: relative;
-      transition: transform 0.3s;
-    }
-
-    .qr-frame:hover {
-      transform: scale(1.02);
-    }
-
-    .qr-frame canvas {
-      display: block;
-      border-radius: 4px;
-    }
-
-    .qr-actions {
-      display: flex;
-      gap: 0.75rem;
-      flex-wrap: wrap;
       justify-content: center;
     }
 
-    .action-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.6rem 1.2rem;
-      background: var(--surface2);
+    .blob {
+      position: fixed;
+      width: 340px; height: 340px;
+      border-radius: 50%;
+      filter: blur(130px);
+      opacity: 0.08;
+      z-index: 0;
+      animation: drift 30s ease-in-out infinite;
+    }
+    .blob-1 { background: var(--accent); top: -120px; left: -120px; }
+    .blob-2 { background: var(--pink); bottom: -120px; right: -120px; animation-delay: -15s; }
+    @keyframes drift {
+      0%, 100% { transform: translate(0,0); }
+      50% { transform: translate(20px, 15px); }
+    }
+
+    .app {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 520px;
+      padding: 2rem 1.25rem 3rem;
+    }
+
+    /* ── Header ── */
+    .hdr { text-align: center; margin-bottom: 1.25rem; }
+    .hdr h1 {
+      font-size: 1.5rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--pink), var(--green));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; letter-spacing: -0.02em;
+    }
+    .hdr p { color: var(--text-dim); font-size: 0.78rem; margin-top: 0.15rem; }
+
+    /* ── Input card ── */
+    .card {
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-decoration: none;
+      border-radius: var(--r);
+      padding: 0.75rem;
     }
 
-    .action-btn:hover {
-      border-color: var(--accent);
-      background: rgba(108, 92, 231, 0.1);
+    textarea {
+      width: 100%;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem; line-height: 1.4;
+      padding: 0.55rem 0.7rem;
+      resize: none; min-height: 40px; max-height: 140px;
+      outline: none; transition: border-color .2s;
     }
+    textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
+    textarea::placeholder { color: var(--text-dim); opacity: .5; }
 
-    .action-btn svg {
-      width: 16px;
-      height: 16px;
+    .presets { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-top: 0.45rem; }
+    .chip {
+      padding: 0.2rem 0.55rem;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 20px; color: var(--text-dim);
+      font-size: 0.68rem; font-family: inherit; cursor: pointer;
+      transition: all .15s;
     }
+    .chip:hover { border-color: var(--accent); color: var(--text); background: rgba(124,108,240,.08); }
 
-    /* Presets */
-    .presets {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      margin-top: 0.75rem;
+    /* ── Options strip ── */
+    .opts {
+      display: flex; align-items: center; gap: 0.85rem;
+      margin-top: 0.6rem; padding: 0.5rem 0.7rem;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r); flex-wrap: wrap;
     }
-
-    .preset-chip {
-      padding: 0.35rem 0.75rem;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      color: var(--text-dim);
-      font-size: 0.78rem;
-      font-family: 'Inter', sans-serif;
-      cursor: pointer;
-      transition: all 0.2s;
+    .o { display: flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; color: var(--text-dim); }
+    .o-l { font-weight: 600; text-transform: uppercase; letter-spacing: .04em; font-size: 0.6rem; }
+    .o select {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 4px; color: var(--text);
+      font-size: 0.72rem; padding: 0.2rem 0.3rem;
+      outline: none; cursor: pointer; font-family: inherit;
     }
+    .o select:focus { border-color: var(--accent); }
 
-    .preset-chip:hover {
-      border-color: var(--accent);
-      color: var(--text);
-      background: rgba(108, 92, 231, 0.1);
+    input[type="range"] {
+      -webkit-appearance: none; width: 70px; height: 3px;
+      border-radius: 2px; background: var(--border); outline: none; cursor: pointer;
     }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 12px; height: 12px;
+      border-radius: 50%; background: var(--accent); cursor: pointer;
+    }
+    .sv { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--accent); min-width: 28px; }
 
-    /* Footer */
-    .footer {
-      text-align: center;
-      margin-top: 3rem;
-      padding-top: 1.5rem;
+    .sw {
+      position: relative; width: 20px; height: 20px;
+      border-radius: 4px; border: 1.5px solid var(--border);
+      overflow: hidden; cursor: pointer; flex-shrink: 0;
+    }
+    .sw input[type="color"] {
+      position: absolute; inset: -5px;
+      width: calc(100% + 10px); height: calc(100% + 10px);
+      border: none; cursor: pointer;
+    }
+    .ch { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--text-dim); }
+
+    /* ── Generate button ── */
+    .gen {
+      width: 100%; margin-top: 0.6rem; padding: 0.6rem;
+      background: linear-gradient(135deg, var(--accent), #8b6cf0);
+      color: #fff; border: none; border-radius: var(--r);
+      font-family: inherit; font-size: 0.85rem; font-weight: 700;
+      cursor: pointer; transition: all .2s; letter-spacing: .02em;
+    }
+    .gen:hover { transform: translateY(-1px); box-shadow: 0 6px 18px var(--accent-glow); }
+    .gen:active { transform: translateY(0); }
+
+    /* ── QR output ── */
+    .out {
+      display: none; flex-direction: column; align-items: center;
+      gap: 0.85rem; margin-top: 1rem;
+      animation: up .3s ease-out;
+    }
+    .out.show { display: flex; }
+    @keyframes up { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+    .frame {
+      background: #fff; border-radius: 10px; padding: 14px;
+      box-shadow: 0 12px 36px rgba(0,0,0,.35);
+      transition: transform .25s;
+    }
+    .frame:hover { transform: scale(1.03); }
+    .frame canvas { display: block; border-radius: 3px; }
+
+    .acts { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: center; }
+    .ab {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      padding: 0.35rem 0.7rem;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--text);
+      font-family: inherit; font-size: 0.72rem; font-weight: 600;
+      cursor: pointer; transition: all .15s;
+    }
+    .ab:hover { border-color: var(--accent); background: rgba(124,108,240,.08); }
+    .ab svg { width: 12px; height: 12px; }
+
+    .foot {
+      text-align: center; margin-top: 1.5rem; padding-top: 0.75rem;
       border-top: 1px solid var(--border);
-      color: var(--text-dim);
-      font-size: 0.8rem;
+      color: var(--text-dim); font-size: 0.68rem;
     }
+    .foot a { color: var(--accent); text-decoration: none; }
 
-    .footer a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    /* Responsive */
-    @media (max-width: 600px) {
-      .header h1 { font-size: 1.8rem; }
-      .options { grid-template-columns: 1fr 1fr; }
-      .app { padding: 1.5rem 1rem 3rem; }
+    @media (max-width: 480px) {
+      .app { padding: 1rem .75rem 2rem; }
+      .opts { gap: 0.5rem; }
+      input[type="range"] { width: 55px; }
     }
   </style>
 </head>
 <body>
-  <div class="bg-grid"></div>
-  <div class="bg-blob bg-blob-1"></div>
-  <div class="bg-blob bg-blob-2"></div>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
 
   <div class="app">
-    <header class="header">
+    <header class="hdr">
       <h1>QR Fun</h1>
-      <p>Turn anything into a QR code — text, URLs, WiFi creds, whatever</p>
+      <p>Turn anything into a QR code</p>
     </header>
 
-    <div class="input-section">
-      <label>Content</label>
-      <textarea id="input" placeholder="Paste a URL, type some text, or pick a preset below…" rows="2"></textarea>
+    <div class="card">
+      <textarea id="input" placeholder="Paste a URL, type text, or pick a preset…" rows="1"></textarea>
       <div class="presets">
-        <button class="preset-chip" data-value="https://github.com/Git-on-my-level">GitHub Profile</button>
-        <button class="preset-chip" data-value="WIFI:T:WPA;S:MyNetwork;P:password123;;">WiFi Login</button>
-        <button class="preset-chip" data-value="Hello from QR Fun! 🎉">Fun Message</button>
-        <button class="preset-chip" data-prompt="email">Email Me</button>
+        <button class="chip" data-value="https://github.com/Git-on-my-level">GitHub</button>
+        <button class="chip" data-value="WIFI:T:WPA;S:MyNetwork;P:password123;;">WiFi</button>
+        <button class="chip" data-value="Hello from QR Fun! 🎉">Hello</button>
+        <button class="chip" data-value="mailto:hello@example.com">Email</button>
       </div>
     </div>
 
-    <div class="options">
-      <div class="option-group">
-        <label>Size</label>
+    <div class="opts">
+      <div class="o">
+        <span class="o-l">Size</span>
         <input type="range" id="size" min="128" max="512" step="32" value="256">
-        <div class="range-value" id="size-value">256 × 256</div>
+        <span class="sv" id="size-val">256</span>
       </div>
-
-      <div class="option-group">
-        <label>Error Correction</label>
+      <div class="o">
+        <span class="o-l">EC</span>
         <select id="ecl">
-          <option value="L">Low (7%)</option>
-          <option value="M" selected>Medium (15%)</option>
-          <option value="Q">Quartile (25%)</option>
-          <option value="H">High (30%)</option>
+          <option value="L">L</option>
+          <option value="M" selected>M</option>
+          <option value="Q">Q</option>
+          <option value="H">H</option>
         </select>
       </div>
-
-      <div class="option-group">
-        <label>Foreground</label>
-        <div class="color-row">
-          <div class="color-swatch">
-            <input type="color" id="fg-color" value="#000000">
-          </div>
-          <span class="color-label" id="fg-label">#000000</span>
-        </div>
+      <div class="o">
+        <span class="o-l">FG</span>
+        <div class="sw"><input type="color" id="fg" value="#000000"></div>
+        <span class="ch" id="fg-l">#000</span>
       </div>
-
-      <div class="option-group">
-        <label>Background</label>
-        <div class="color-row">
-          <div class="color-swatch">
-            <input type="color" id="bg-color" value="#ffffff">
-          </div>
-          <span class="color-label" id="bg-label">#ffffff</span>
-        </div>
+      <div class="o">
+        <span class="o-l">BG</span>
+        <div class="sw"><input type="color" id="bg" value="#ffffff"></div>
+        <span class="ch" id="bg-l">#fff</span>
       </div>
     </div>
 
-    <button class="generate-btn" id="generate">Generate QR Code</button>
+    <button class="gen" id="go">Generate</button>
 
-    <div class="qr-display" id="qr-display">
-      <div class="qr-frame">
-        <canvas id="qr-canvas"></canvas>
-      </div>
-      <div class="qr-actions">
-        <button class="action-btn" id="download-png">
+    <div class="out" id="out">
+      <div class="frame"><canvas id="cv"></canvas></div>
+      <div class="acts">
+        <button class="ab" id="dl">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download PNG
+          PNG
         </button>
-        <button class="action-btn" id="copy-svg">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          Copy SVG
+        <button class="ab" id="csvg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          SVG
         </button>
-        <button class="action-btn" id="copy-data-uri">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
-          Copy Data URI
+        <button class="ab" id="cdu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+          Data URI
         </button>
       </div>
     </div>
 
-    <div class="footer">
-      Built with <a href="https://github.com/nayuki/QR-Code-generator">nayuki/QR-Code-generator</a> •
-      <a href="https://github.com/Git-on-my-level/demo-qr-generator">Source on GitHub</a>
+    <div class="foot">
+      <a href="https://github.com/nayuki/QR-Code-generator">nayuki</a> ·
+      <a href="https://github.com/Git-on-my-level/demo-qr-generator">source</a>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
   <script>
-    const input = document.getElementById('input');
-    const sizeSlider = document.getElementById('size');
-    const sizeValue = document.getElementById('size-value');
-    const eclSelect = document.getElementById('ecl');
-    const fgColor = document.getElementById('fg-color');
-    const bgColor = document.getElementById('bg-color');
-    const fgLabel = document.getElementById('fg-label');
-    const bgLabel = document.getElementById('bg-label');
-    const generateBtn = document.getElementById('generate');
-    const qrDisplay = document.getElementById('qr-display');
-    const qrCanvas = document.getElementById('qr-canvas');
+    const $ = id => document.getElementById(id);
+    const input = $('input'), sizeR = $('size'), sizeV = $('size-val');
+    const ecl = $('ecl'), fg = $('fg'), bg = $('bg');
+    const fgL = $('fg-l'), bgL = $('bg-l');
+    const out = $('out'), cv = $('cv');
 
-    // Update range label
-    sizeSlider.addEventListener('input', () => {
-      sizeValue.textContent = `${sizeSlider.value} × ${sizeSlider.value}`;
+    sizeR.oninput = () => sizeV.textContent = sizeR.value;
+    fg.oninput = () => fgL.textContent = fg.value;
+    bg.oninput = () => bgL.textContent = bg.value;
+
+    document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
+      input.value = c.dataset.value;
+      input.focus();
+      gen();
     });
 
-    // Update color labels
-    fgColor.addEventListener('input', () => { fgLabel.textContent = fgColor.value; });
-    bgColor.addEventListener('input', () => { bgLabel.textContent = bgColor.value; });
+    input.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); gen(); } };
+    $('go').onclick = gen;
 
-    // Presets
-    document.querySelectorAll('.preset-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        if (chip.dataset.prompt === 'email') {
-          const email = 'hello@example.com';
-          input.value = `mailto:${email}`;
-        } else {
-          input.value = chip.dataset.value;
-        }
-        input.focus();
-        generateQR();
-      });
-    });
+    let svg = '';
+    function gen() {
+      const t = input.value.trim();
+      if (!t) return input.focus();
 
-    // Auto-generate on Enter in textarea
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        generateQR();
-      }
-    });
-
-    // Generate
-    generateBtn.addEventListener('click', generateQR);
-
-    let lastSvgString = '';
-
-    function generateQR() {
-      const text = input.value.trim();
-      if (!text) {
-        input.focus();
-        return;
-      }
-
-      const size = parseInt(sizeSlider.value);
-      const ecl = eclSelect.value;
-      const fg = fgColor.value;
-      const bg = bgColor.value;
-
-      // Auto-detect best type number (0 = auto)
       let qr;
-      try {
-        qr = qrcode(0, ecl);
-        qr.addData(text);
-        qr.make();
-      } catch (e) {
-        // If data is too long for current EC level, try lower
-        try {
-          qr = qrcode(0, 'L'); // Low EC
-          qr.addData(text);
-          qr.make();
-        } catch (e2) {
-          alert('Text is too long to encode as a QR code.');
-          return;
-        }
+      try { qr = qrcode(0, ecl.value); qr.addData(t); qr.make(); }
+      catch { try { qr = qrcode(0, 'L'); qr.addData(t); qr.make(); }
+        catch { return alert('Too long for a QR code.'); } }
+
+      const s = +sizeR.value, n = qr.getModuleCount(), cs = s / n;
+      cv.width = cv.height = s;
+      const ctx = cv.getContext('2d');
+      ctx.fillStyle = bg.value; ctx.fillRect(0, 0, s, s);
+      ctx.fillStyle = fg.value;
+      for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) {
+        const x = Math.round(c*cs), y = Math.round(r*cs);
+        ctx.fillRect(x, y, Math.round((c+1)*cs)-x, Math.round((r+1)*cs)-y);
       }
 
-      const moduleCount = qr.getModuleCount();
-      const cellSize = size / moduleCount;
-
-      // Draw to canvas
-      qrCanvas.width = size;
-      qrCanvas.height = size;
-      const ctx = qrCanvas.getContext('2d');
-
-      // Background
-      ctx.fillStyle = bg;
-      ctx.fillRect(0, 0, size, size);
-
-      // Modules
-      ctx.fillStyle = fg;
-      for (let row = 0; row < moduleCount; row++) {
-        for (let col = 0; col < moduleCount; col++) {
-          if (qr.isDark(row, col)) {
-            const x = Math.round(col * cellSize);
-            const y = Math.round(row * cellSize);
-            const w = Math.round((col + 1) * cellSize) - x;
-            const h = Math.round((row + 1) * cellSize) - y;
-            ctx.fillRect(x, y, w, h);
-          }
-        }
+      svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${s} ${s}" width="${s}" height="${s}"><rect width="${s}" height="${s}" fill="${bg.value}"/>`;
+      for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) {
+        const x = Math.round(c*cs), y = Math.round(r*cs);
+        svg += `<rect x="${x}" y="${y}" width="${Math.round((c+1)*cs)-x}" height="${Math.round((r+1)*cs)-y}" fill="${fg.value}"/>`;
       }
-
-      // Build SVG string for copy
-      let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">`;
-      svg += `<rect width="${size}" height="${size}" fill="${bg}"/>`;
-      for (let row = 0; row < moduleCount; row++) {
-        for (let col = 0; col < moduleCount; col++) {
-          if (qr.isDark(row, col)) {
-            const x = Math.round(col * cellSize);
-            const y = Math.round(row * cellSize);
-            const w = Math.round((col + 1) * cellSize) - x;
-            const h = Math.round((row + 1) * cellSize) - y;
-            svg += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fg}"/>`;
-          }
-        }
-      }
-      svg += `</svg>`;
-      lastSvgString = svg;
-
-      // Show
-      qrDisplay.classList.add('visible');
+      svg += '</svg>';
+      out.classList.add('show');
     }
 
-    // Download PNG
-    document.getElementById('download-png').addEventListener('click', () => {
-      const link = document.createElement('a');
-      link.download = 'qr-code.png';
-      link.href = qrCanvas.toDataURL('image/png');
-      link.click();
-    });
+    $('dl').onclick = () => { const a = document.createElement('a'); a.download = 'qr.png'; a.href = cv.toDataURL('image/png'); a.click(); };
 
-    // Copy SVG
-    document.getElementById('copy-svg').addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(lastSvgString);
-        const btn = document.getElementById('copy-svg');
-        const original = btn.innerHTML;
-        btn.innerHTML = '✓ Copied!';
-        setTimeout(() => { btn.innerHTML = original; }, 1500);
-      } catch {
-        // Fallback
-        const ta = document.createElement('textarea');
-        ta.value = lastSvgString;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-      }
-    });
+    function flash(id) { const b = $(id), h = b.innerHTML; b.textContent = '✓'; setTimeout(() => b.innerHTML = h, 1200); }
+    async function clip(t, id) { try { await navigator.clipboard.writeText(t); } catch { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); } flash(id); }
 
-    // Copy Data URI
-    document.getElementById('copy-data-uri').addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(qrCanvas.toDataURL('image/png'));
-        const btn = document.getElementById('copy-data-uri');
-        const original = btn.innerHTML;
-        btn.innerHTML = '✓ Copied!';
-        setTimeout(() => { btn.innerHTML = original; }, 1500);
-      } catch {
-        const ta = document.createElement('textarea');
-        ta.value = qrCanvas.toDataURL('image/png');
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-      }
-    });
+    $('csvg').onclick = () => clip(svg, 'csvg');
+    $('cdu').onclick = () => clip(cv.toDataURL('image/png'), 'cdu');
   </script>
 </body>
 </html>
